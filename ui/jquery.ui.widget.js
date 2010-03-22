@@ -156,6 +156,9 @@ $.Widget.prototype = {
 		this.element.bind( "remove." + this.widgetName, function() {
 			self.destroy();
 		});
+		
+		// used by _bind
+		this.bindings = $();
 
 		this._create();
 		this._trigger( "create" );
@@ -177,6 +180,8 @@ $.Widget.prototype = {
 			.removeClass(
 				this.widgetBaseClass + "-disabled " +
 				"ui-state-disabled" );
+		this.bindings
+			.unbind( "." + this.widgetName );
 	},
 
 	widget: function() {
@@ -230,6 +235,27 @@ $.Widget.prototype = {
 	},
 	disable: function() {
 		return this._setOption( "disabled", true );
+	},
+	
+	_bind: function( element, handlers ) {
+		// no element argument, shuffle and use this.element
+		if ( handlers == undefined ) {
+			handlers = element;
+			element = this.element;
+		// if binding to something else then this.element, store for unbinding on destroy
+		} else {
+			this.bindings = this.bindings.add( element );
+		}
+		var instance = this;
+		$.each( handlers, function(event, handler) {
+			element.bind( event + "." + instance.widgetName, function() {
+				if ( instance.options.disabled ) {
+					return;
+				}
+				return handler.apply( instance, arguments );
+			});
+			
+		});		
 	},
 
 	_trigger: function( type, event, data ) {
