@@ -146,12 +146,18 @@ test('merge multiple option arguments', function() {
 	});
 });
 
+function teardownWidget(name) {
+	delete $.fn[name];
+	delete $.ui[name];
+}
+
 test(".widget() - base", function() {
 	$.widget("ui.testWidget", {
 		_create: function() {}
 	});
 	var div = $("<div></div>").testWidget()
 	same(div[0], div.testWidget("widget")[0]);
+	teardownWidget("testWidget");
 });
 
 test(".widget() - overriden", function() {
@@ -163,6 +169,72 @@ test(".widget() - overriden", function() {
 		}
 	});
 	same(wrapper[0], $("<div></div>").testWidget().testWidget("widget")[0]);
+	teardownWidget("testWidget");
 });
+
+test("_bind to element (default)", function() {
+	expect(12);
+	var self;
+	$.widget("ui.testWidget", {
+		_create: function() {
+			self = this;
+			this._bind({
+				keyup: this.keyup,
+				keydown: this.keydown
+			});
+		},
+		keyup: function(event) {
+			equals( self, this );
+			equals( self.element[0], event.currentTarget );
+			equals( "keyup", event.type );
+		},
+		keydown: function(event) {
+			equals( self, this );
+			equals( self.element[0], event.currentTarget );
+			equals( "keydown", event.type );
+		}
+	});
+	var widget = $("<div></div>").testWidget().trigger("keyup").trigger("keydown");
+	widget.testWidget("disable").trigger("keyup").trigger("keydown");
+	widget.testWidget("enable").trigger("keyup").trigger("keydown");
+	widget.testWidget("destroy").trigger("keyup").trigger("keydown");
+	teardownWidget("testWidget");
+});
+
+test("_bind to descendent", function() {
+	expect(12);
+	var self;
+	$.widget("ui.testWidget", {
+		_create: function() {
+			self = this;
+			this._bind(this.element.find("strong"), {
+				keyup: this.keyup,
+				keydown: this.keydown
+			});
+		},
+		keyup: function(event) {
+			equals( self, this );
+			equals( self.element.find("strong")[0], event.currentTarget );
+			equals( "keyup", event.type );
+		},
+		keydown: function(event) {
+			equals( self, this );
+			equals( self.element.find("strong")[0], event.currentTarget );
+			equals( "keydown", event.type );
+		}
+	});
+	// trigger events on both widget and descendent to ensure that only descendent receives them
+	var widget = $("<div><p><strong>hello</strong> world</p></div>").testWidget().trigger("keyup").trigger("keydown");
+	var descendent = widget.find("strong").trigger("keyup").trigger("keydown");
+	widget.testWidget("disable").trigger("keyup").trigger("keydown");
+	descendent.trigger("keyup").trigger("keydown");
+	widget.testWidget("enable").trigger("keyup").trigger("keydown");
+	descendent.trigger("keyup").trigger("keydown");
+	widget.testWidget("destroy").trigger("keyup").trigger("keydown");
+	descendent.trigger("keyup").trigger("keydown");
+	teardownWidget("testWidget");
+});
+
+// test destroy and disabled
 
 })(jQuery);

@@ -139,6 +139,9 @@ $.Widget.prototype = {
 		this.element.bind( "remove." + this.widgetName, function() {
 			self.destroy();
 		});
+		
+		// used by _bind
+		this.bindings = $();
 
 		this._create();
 		this._init();
@@ -156,6 +159,8 @@ $.Widget.prototype = {
 			.removeClass(
 				this.widgetBaseClass + "-disabled " +
 				this.namespace + "-state-disabled" );
+		this.bindings
+			.unbind( "." + this.widgetName );
 	},
 
 	widget: function() {
@@ -206,30 +211,25 @@ $.Widget.prototype = {
 		return this._setOption( "disabled", true );
 	},
 	
-	_bind: function() {
-		// TODO figure out which element to bind to: this.element, if none specified
-		// TODO append widget namespace to all event names
-		// TODO set the scope of the callback to the instance (this here)
-		// TODO extend destroy to unbind all events to elements other then this.element
-		
-		// usage: bind to this.element
-		this._bind({
-			mouseover: function(event) {
-				this.show(event.currentTarget)
-			},
-			mouseout: function(event) {
-				this.hide(event.currentTarget);
-			}
-		});
-		// usage: bind to a specified element
-		this._bind(this.element.find(".headers"), {
-			mouseover: function(event) {
-				this.show(event.currentTarget)
-			},
-			mouseout: function(event) {
-				this.hide(event.currentTarget);
-			}
-		});
+	_bind: function( element, handlers ) {
+		// no element argument, shuffle and use this.element
+		if ( handlers == undefined ) {
+			handlers = element;
+			element = this.element;
+		// if binding to something else then this.element, store for unbinding on destroy
+		} else {
+			this.bindings = this.bindings.add( element );
+		}
+		var instance = this;
+		$.each( handlers, function(event, handler) {
+			element.bind( event + "." + instance.widgetName, function() {
+				if ( instance.options.disabled ) {
+					return;
+				}
+				return handler.apply( instance, arguments );
+			});
+			
+		});		
 	},
 
 	_trigger: function( type, event, data ) {
