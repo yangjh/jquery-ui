@@ -84,7 +84,7 @@ $.widget("ui.dialog", {
 
 			title = options.title || "&#160;",
 			titleId = $.ui.dialog.getTitleId( self.element ),
-
+			//wrapper
 			uiDialog = ( self.uiDialog = $( "<div>" ) )
 				.appendTo( document.body )
 				.hide()
@@ -111,17 +111,20 @@ $.widget("ui.dialog", {
 					self.moveToTop( false, event );
 				}),
 
+			///content is actual content to be dispalyed
 			uiDialogContent = self.element
 				.show()
 				.removeAttr( "title" )
 				.addClass( "ui-dialog-content ui-widget-content" )
 				.appendTo( uiDialog ),
 
+			//title
 			uiDialogTitlebar = ( self.uiDialogTitlebar = $( "<div>" ) )
 				.addClass( "ui-dialog-titlebar  ui-widget-header  " +
 					"ui-corner-all  ui-helper-clearfix" )
 				.prependTo( uiDialog ),
 
+			//the close button in the tool bar
 			uiDialogTitlebarClose = $( "<a href='#'></a>" )
 				.addClass( "ui-dialog-titlebar-close  ui-corner-all" )
 				.attr( "role", "button" )
@@ -145,11 +148,13 @@ $.widget("ui.dialog", {
 				})
 				.appendTo( uiDialogTitlebar ),
 
+			///the text of close button
 			uiDialogTitlebarCloseText = ( self.uiDialogTitlebarCloseText = $( "<span>" ) )
 				.addClass( "ui-icon ui-icon-closethick" )
 				.text( options.closeText )
 				.appendTo( uiDialogTitlebarClose ),
 
+			//the title in the toolbar
 			uiDialogTitle = $( "<span>" )
 				.addClass( "ui-dialog-title" )
 				.attr( "id", titleId )
@@ -657,6 +662,7 @@ $.widget("ui.dialog", {
 	}
 });
 
+///add property to the constructor
 $.extend($.ui.dialog, {
 	version: "@VERSION",
 
@@ -677,6 +683,7 @@ $.extend($.ui.dialog, {
 	}
 });
 
+///add property to constructor.overlay
 $.extend( $.ui.dialog.overlay, {
 	instances: [],
 	// reuse old instances due to IE memory leak with alpha transparency (see #5185)
@@ -688,6 +695,7 @@ $.extend( $.ui.dialog.overlay, {
 			return event + ".dialog-overlay";
 		}
 	).join( " " ),
+
 	create: function( dialog ) {
 		if ( this.instances.length === 0 ) {
 			// prevent use of anchors and inputs
@@ -829,6 +837,7 @@ $.extend( $.ui.dialog.overlay, {
 	}
 });
 
+///
 $.extend( $.ui.dialog.overlay.prototype, {
 	destroy: function() {
 		$.ui.dialog.overlay.destroy( this.$el );

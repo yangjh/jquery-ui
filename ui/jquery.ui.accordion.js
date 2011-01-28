@@ -81,7 +81,7 @@ $.widget( "ui.accordion", {
 
 		self._createIcons();
 		self.refresh();
-		
+
 		// ARIA
 		self.element.attr( "role", "tablist" );
 
@@ -172,9 +172,9 @@ $.widget( "ui.accordion", {
 			this._activate( value );
 			return;
 		}
-		
+
 		this._super( "_setOption", key, value );
-		
+
 		if ( key == "icons" ) {
 			this._destroyIcons();
 			if ( value ) {
@@ -238,7 +238,7 @@ $.widget( "ui.accordion", {
 				if ( position === "absolute" || position === "fixed" ) {
 					return;
 				}
-				maxHeight -= elem.outerHeight( true );	
+				maxHeight -= elem.outerHeight( true );
 			});
 			if ($.browser.msie) {
 				this.element.parent().css( "overflow", defOverflow );
@@ -493,7 +493,9 @@ $.widget( "ui.accordion", {
 	}
 });
 
-$.extend( $.ui.accordion, {
+$.extend( $.ui.accordion,
+
+{
 	version: "@VERSION",
 	animations: {
 		slide: function( options, additions ) {
