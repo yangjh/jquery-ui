@@ -114,22 +114,36 @@ $.widget.bridge = function( name, object ) {
 			$.extend.apply( null, [ true, options ].concat(args) ) :
 			options;
 
-		// prevent calls to internal methods
+        ///if it is not method call, and args.length > 0
+        //dialog({ xx : xx }, {yy : yy })
+        //combind them together {xx : xx, yy : yy }
+//        if (!isMethodCall && args.length) {
+//            options = $.extend(true, options, args) ;
+//        }
+
+		// prevent calls to internal methods, for exammple _create()
 		if ( isMethodCall && options.charAt( 0 ) === "_" ) {
 			return returnValue;
 		}
 
 		if ( isMethodCall ) {
+            ///here options is actually a method name
+            ///args is the parameter to the method
 			this.each(function() {
 				var instance = $.data( this, name );
-				if ( !instance ) {
+				///assertion
+                if ( !instance ) {
 					return $.error( "cannot call methods on " + name + " prior to initialization; " +
 						"attempted to call method '" + options + "'" );
 				}
-				if ( !$.isFunction( instance[options] ) ) {
+
+                ///assertion
+                if ( !$.isFunction( instance[options] ) ) {
 					return $.error( "no such method '" + options + "' for " + name + " widget instance" );
 				}
+
 				var methodValue = instance[ options ].apply( instance, args );
+
 				if ( methodValue !== instance && methodValue !== undefined ) {
 					returnValue = methodValue;
 					return false;
@@ -140,6 +154,8 @@ $.widget.bridge = function( name, object ) {
 			this.each(function() {
 
 				var instance = $.data( this, name );
+                ///if instance has been created
+                ///don't recreate it, just apply the new options
 				if ( instance ) {
 					//if the behavior has been attached to this element
 					//config it
@@ -170,6 +186,7 @@ $.Widget.prototype = {
 	options: {
 		disabled: false
 	},
+    ///this is initializer, it will be called inside the constructor
 	_createWidget: function( options, element ) {
 		// $.widget.bridge stores the plugin instance, but we do it anyway
 		// so that it's stored even before the _create function runs
@@ -225,6 +242,8 @@ $.Widget.prototype = {
 	},
 	_destroy: $.noop,
 
+    ///return the jQuery object that associate with the
+    ///the widget
 	widget: function() {
 		return this.element;
 	},
